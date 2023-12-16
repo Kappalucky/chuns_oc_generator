@@ -1,9 +1,16 @@
 <script setup>
-import { reactive, ref } from 'vue'
+import { reactive, ref, computed } from 'vue'
 import { Dialog, DialogPanel, TransitionChild, TransitionRoot } from '@headlessui/vue'
 import { CheckIcon } from '@heroicons/vue/24/outline'
+import { useCharacterStore } from '@/stores/characterStore'
+import { characterData } from '@/constants/characterData'
+import { randomize } from '@/utils/functions'
 
 const open = ref(false)
+
+const characterStore = useCharacterStore()
+
+const isCompleteCharacter = computed(() => characterStore.isCompleteCharacter)
 
 let character = reactive({
   species: '',
@@ -19,149 +26,40 @@ let character = reactive({
   name: ''
 })
 
+const randomizeCharacter = () => {
+  characterStore.randomizeCharacter()
+}
+
 const selectedCategory = ref('')
 const selectedOption = ref('')
 const updateOptions = () => {
   selectedOption.value = '' // Reset selectedOption when category changes
 }
 
-const species = ref(['Human', 'Elf', 'Bunny', 'Fairy', 'Mermaid', 'Troll'])
-const clothes = ref(['Futuristic', 'Fantasy', 'Everyday', 'Casual', 'Stylish', 'Sexy/Cute'])
-const details = ref([
-  'Freckles',
-  'Glasses',
-  'Blush',
-  'Jewelry',
-  'Nekomimi (Cat Ears)',
-  'Face/body Piercings'
-])
-const hair = ref([
-  'Curly-Wavy-Long',
-  'Buns-Curly-Messy',
-  'Straight-Short',
-  'Wavy-Long',
-  'Straight-Very Long',
-  'Straight-Bun-Fluffy',
-  'None'
-])
-const eyes = ref(['Blue', 'Hazel', 'Brown', 'Green', 'Black', 'Red', 'Purple', 'None'])
-const skinTone = ref(['Pale', 'light brown', 'Brown', 'Dark brown', 'Red hue'])
-const height = ref(['Small (~3" or less)', 'Short(~4")', 'Average(~5")', 'Tall(~6"+)'])
-const build = ref(['Athletic', 'Slim', 'Thick', 'Fat', 'Skinny Fat'])
-const mood = ref(['Happy', 'Sad', 'Confused', 'Angry/Serious', 'Pleased', 'Afraid'])
-const colors = ref(['Warm', 'Cool', 'Neon', 'Pastel', 'Bright', 'Dark'])
-const name = {
-  Month: [
-    'January',
-    'February',
-    'March',
-    'April',
-    'May',
-    'June',
-    'July',
-    'August',
-    'September',
-    'October',
-    'November',
-    'December'
-  ],
-  Season: ['Spring', 'Winter', 'Fall/Autumn', 'Summer'],
-  'Greek Mythology': [
-    'Zeus',
-    'Ares',
-    'Aphrodite',
-    'Hermes',
-    'Hera',
-    'Apollo',
-    'Artemis',
-    'Hades',
-    'Demeter'
-  ],
-  Day: ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'],
-  Candy: [
-    'Skittles',
-    'Starburst',
-    'Twizzlers',
-    'Butterfinger',
-    'Nerds',
-    'Hershey',
-    'M&M',
-    'Baby Ruth',
-    'Twix'
-  ],
-  Weather: [
-    'Rain',
-    'Snow',
-    'Storm',
-    'Blizzard',
-    'Thunderstorm',
-    'Hail',
-    'Lightning',
-    'Heat Wave',
-    'Tornado',
-    'Hurricane',
-    'Ice Storm',
-    'Wind'
-  ]
-}
-
 const datasets = {
-  species: species.value,
-  clothes: clothes.value,
-  details: details.value,
-  hair: hair.value,
-  eyes: eyes.value,
-  skinTone: skinTone.value,
-  height: height.value,
-  build: build.value,
-  mood: mood.value,
-  colors: colors.value
+  species: characterData.species,
+  clothes: characterData.clothes,
+  details: characterData.details,
+  hair: characterData.hair,
+  eyes: characterData.eyes,
+  skinTone: characterData.skinTone,
+  height: characterData.height,
+  build: characterData.build,
+  mood: characterData.mood,
+  colors: characterData.colors
 }
 
 const randomCharacterValue = (propertyName, dataSet) => {
+  console.log('randomCV: ', propertyName, dataSet)
   const randomValue = randomize(dataSet)
 
   character[propertyName] = randomValue
 }
 
-const randomize = (dataSet) => {
-  // Check if the dataSet is an array or an object
-  if (Array.isArray(dataSet)) {
-    // If it's an array, get the length
-    const length = dataSet.length
-
-    // Check if the array is not empty
-    if (length > 0) {
-      // Generate a random index and return the corresponding item
-      const randomIndex = Math.floor(Math.random() * length)
-      return dataSet[randomIndex]
-    } else {
-      // If the array is empty, return null or handle it as needed
-      return null
-    }
-  } else if (typeof dataSet === 'object' && dataSet !== null) {
-    // If it's an object, get the keys
-    const keys = Object.keys(dataSet)
-
-    // Check if the object has any keys
-    if (keys.length > 0) {
-      // Choose a random key and return the corresponding value
-      const randomKey = keys[Math.floor(Math.random() * keys.length)]
-      return dataSet[randomKey]
-    } else {
-      // If the object has no keys, return null or handle it as needed
-      return null
-    }
-  } else {
-    // Handle other data types if needed
-    return null
-  }
-}
-
 const randomizeName = () => {
-  const keys = Object.keys(name)
+  const keys = Object.keys(characterData.name)
   const randomKey = keys[Math.floor(Math.random() * keys.length)]
-  const randomDataset = name[randomKey]
+  const randomDataset = characterData.name[randomKey]
   selectedCategory.value = randomKey
   randomCharacterValue('name', randomDataset)
   selectedOption.value = character.name
@@ -183,9 +81,11 @@ const randomizeRecursive = () => {
 const saveCharacter = () => {
   randomizeRecursive()
   open.value = true
+  characterStore.saveCharacter()
 }
 
 const closeModal = () => {
+  characterStore.clearCharacter()
   character = reactive({
     species: '',
     clothes: '',
@@ -199,8 +99,8 @@ const closeModal = () => {
     colors: '',
     name: ''
   })
-  selectedCategory.value = '';
-  selectedOption.value = '';
+  selectedCategory.value = ''
+  selectedOption.value = ''
   open.value = false
 }
 </script>
@@ -214,7 +114,10 @@ const closeModal = () => {
         >
           Chun's OC Generator
         </h2>
-        <p class="py-2 mt-2">You can either select the field option, hit the randomize button per field, or just hit the save button at the end and all values will be randomized</p>
+        <p class="py-2 mt-2">
+          You can either select the field option, hit the randomize button per field, or just hit
+          the save button at the end and all values will be randomized
+        </p>
       </div>
     </div>
     <form>
@@ -235,7 +138,7 @@ const closeModal = () => {
                   v-model="character.species"
                 >
                   <option value="" disabled>Select an option</option>
-                  <option v-for="(item, index) in species" :key="index">{{ item }}</option>
+                  <option v-for="(item, index) in characterData.species" :key="index">{{ item }}</option>
                 </select>
               </div>
             </div>
@@ -243,7 +146,7 @@ const closeModal = () => {
               <button
                 type="button"
                 class="rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
-                @click.prevent="randomCharacterValue('species', species)"
+                @click.prevent="randomCharacterValue('species', characterData.species)"
               >
                 Randomize
               </button>
@@ -266,7 +169,7 @@ const closeModal = () => {
                   v-model="character.clothes"
                 >
                   <option value="" disabled>Select an option</option>
-                  <option v-for="(item, index) in clothes" :key="index">{{ item }}</option>
+                  <option v-for="(item, index) in characterData.clothes" :key="index">{{ item }}</option>
                 </select>
               </div>
             </div>
@@ -274,7 +177,7 @@ const closeModal = () => {
               <button
                 type="button"
                 class="rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
-                @click.prevent="randomCharacterValue('clothes', clothes)"
+                @click.prevent="randomCharacterValue('clothes', characterData.clothes)"
               >
                 Randomize
               </button>
@@ -297,7 +200,7 @@ const closeModal = () => {
                   v-model="character.details"
                 >
                   <option value="" disabled>Select an option</option>
-                  <option v-for="(item, index) in details" :key="index">{{ item }}</option>
+                  <option v-for="(item, index) in characterData.details" :key="index">{{ item }}</option>
                 </select>
               </div>
             </div>
@@ -305,7 +208,7 @@ const closeModal = () => {
               <button
                 type="button"
                 class="rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
-                @click.prevent="randomCharacterValue('details', details)"
+                @click.prevent="randomCharacterValue('details', characterData.details)"
               >
                 Randomize
               </button>
@@ -328,7 +231,7 @@ const closeModal = () => {
                   v-model="character.hair"
                 >
                   <option value="" disabled>Select an option</option>
-                  <option v-for="(item, index) in hair" :key="index">{{ item }}</option>
+                  <option v-for="(item, index) in characterData.hair" :key="index">{{ item }}</option>
                 </select>
               </div>
             </div>
@@ -336,7 +239,7 @@ const closeModal = () => {
               <button
                 type="button"
                 class="rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
-                @click.prevent="randomCharacterValue('hair', hair)"
+                @click.prevent="randomCharacterValue('hair', characterData.hair)"
               >
                 Randomize
               </button>
@@ -359,7 +262,7 @@ const closeModal = () => {
                   v-model="character.eyes"
                 >
                   <option value="" disabled>Select an option</option>
-                  <option v-for="(item, index) in eyes" :key="index">{{ item }}</option>
+                  <option v-for="(item, index) in characterData.eyes" :key="index">{{ item }}</option>
                 </select>
               </div>
             </div>
@@ -367,7 +270,7 @@ const closeModal = () => {
               <button
                 type="button"
                 class="rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
-                @click.prevent="randomCharacterValue('eyes', eyes)"
+                @click.prevent="randomCharacterValue('eyes', characterData.eyes)"
               >
                 Randomize
               </button>
@@ -390,7 +293,7 @@ const closeModal = () => {
                   v-model="character.skinTone"
                 >
                   <option value="" disabled>Select an option</option>
-                  <option v-for="(item, index) in skinTone" :key="index">{{ item }}</option>
+                  <option v-for="(item, index) in characterData.skinTone" :key="index">{{ item }}</option>
                 </select>
               </div>
             </div>
@@ -398,7 +301,7 @@ const closeModal = () => {
               <button
                 type="button"
                 class="rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
-                @click.prevent="randomCharacterValue('skinTone', skinTone)"
+                @click.prevent="randomCharacterValue('skinTone', characterData.skinTone)"
               >
                 Randomize
               </button>
@@ -421,7 +324,7 @@ const closeModal = () => {
                   v-model="character.height"
                 >
                   <option value="" disabled>Select an option</option>
-                  <option v-for="(item, index) in height" :key="index">{{ item }}</option>
+                  <option v-for="(item, index) in characterData.height" :key="index">{{ item }}</option>
                 </select>
               </div>
             </div>
@@ -429,7 +332,7 @@ const closeModal = () => {
               <button
                 type="button"
                 class="rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
-                @click.prevent="randomCharacterValue('height', height)"
+                @click.prevent="randomCharacterValue('height', characterData.height)"
               >
                 Randomize
               </button>
@@ -452,7 +355,7 @@ const closeModal = () => {
                   v-model="character.build"
                 >
                   <option value="" disabled>Select an option</option>
-                  <option v-for="(item, index) in build" :key="index">{{ item }}</option>
+                  <option v-for="(item, index) in characterData.build" :key="index">{{ item }}</option>
                 </select>
               </div>
             </div>
@@ -460,7 +363,7 @@ const closeModal = () => {
               <button
                 type="button"
                 class="rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
-                @click.prevent="randomCharacterValue('build', build)"
+                @click.prevent="randomCharacterValue('build', characterData.build)"
               >
                 Randomize
               </button>
@@ -483,7 +386,7 @@ const closeModal = () => {
                   v-model="character.mood"
                 >
                   <option value="" disabled>Select an option</option>
-                  <option v-for="(item, index) in mood" :key="index">{{ item }}</option>
+                  <option v-for="(item, index) in characterData.mood" :key="index">{{ item }}</option>
                 </select>
               </div>
             </div>
@@ -491,7 +394,7 @@ const closeModal = () => {
               <button
                 type="button"
                 class="rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
-                @click.prevent="randomCharacterValue('mood', mood)"
+                @click.prevent="randomCharacterValue('mood', characterData.mood)"
               >
                 Randomize
               </button>
@@ -514,7 +417,7 @@ const closeModal = () => {
                   v-model="character.colors"
                 >
                   <option value="" disabled>Select an option</option>
-                  <option v-for="(item, index) in colors" :key="index">{{ item }}</option>
+                  <option v-for="(item, index) in characterData.colors" :key="index">{{ item }}</option>
                 </select>
               </div>
             </div>
@@ -522,7 +425,7 @@ const closeModal = () => {
               <button
                 type="button"
                 class="rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
-                @click.prevent="randomCharacterValue('colors', colors)"
+                @click.prevent="randomCharacterValue('colors', characterData.colors)"
               >
                 Randomize
               </button>
@@ -545,7 +448,7 @@ const closeModal = () => {
                   @change="updateOptions"
                 >
                   <option value="" disabled>Select an option</option>
-                  <option v-for="(item, category) in name" :key="category" :value="category">
+                  <option v-for="(item, category) in characterData.name" :key="category" :value="category">
                     {{ category }}
                   </option>
                 </select>
@@ -565,7 +468,7 @@ const closeModal = () => {
                   v-model="selectedOption"
                 >
                   <option value="" disabled>Select an option</option>
-                  <option v-for="option in name[selectedCategory]" :key="option">
+                  <option v-for="option in characterData.name[selectedCategory]" :key="option">
                     {{ option }}
                   </option>
                 </select>
