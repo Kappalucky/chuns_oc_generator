@@ -4,7 +4,7 @@ import { Dialog, DialogPanel, TransitionChild, TransitionRoot } from '@headlessu
 import { CheckIcon } from '@heroicons/vue/24/outline'
 import { useCharacterStore } from '@/stores/characterStore'
 import { characterData } from '@/constants/characterData'
-import { randomize } from '@/utils/functions'
+import { pickRandom } from '@/utils/functions'
 
 const open = ref(false)
 
@@ -12,60 +12,26 @@ const characterStore = useCharacterStore()
 
 const isCompleteCharacter = computed(() => characterStore.isCompleteCharacter)
 
-let character = reactive({
-  species: '',
-  clothes: '',
-  details: '',
-  hair: '',
-  eyes: '',
-  skinTone: '',
-  height: '',
-  build: '',
-  mood: '',
-  colors: '',
-  name: ''
-})
-
-const randomizeCharacter = () => {
-  characterStore.randomizeCharacter()
-}
-
 const selectedCategory = ref('')
 const selectedOption = ref('')
 const updateOptions = () => {
   selectedOption.value = '' // Reset selectedOption when category changes
 }
 
-const datasets = {
-  species: characterData.species,
-  clothes: characterData.clothes,
-  details: characterData.details,
-  hair: characterData.hair,
-  eyes: characterData.eyes,
-  skinTone: characterData.skinTone,
-  height: characterData.height,
-  build: characterData.build,
-  mood: characterData.mood,
-  colors: characterData.colors
-}
-
 const randomCharacterValue = (propertyName, dataSet) => {
   console.log('randomCV: ', propertyName, dataSet)
-  const randomValue = randomize(dataSet)
-
-  character[propertyName] = randomValue
+  if (characterStore) {
+  characterStore[propertyName] = pickRandom(dataSet);
+} else {
+  console.warn('Character state not initialized, cannot set properties');
+}
 }
 
-const randomizeName = () => {
-  const keys = Object.keys(characterData.name)
-  const randomKey = keys[Math.floor(Math.random() * keys.length)]
-  const randomDataset = characterData.name[randomKey]
-  selectedCategory.value = randomKey
-  randomCharacterValue('name', randomDataset)
-  selectedOption.value = character.name
+const randomizeName = (category) => {
+  characterStore.name =
 }
 
-const randomizeRecursive = () => {
+/*const randomizeRecursive = () => {
   for (const property in character) {
     if (character.hasOwnProperty(property) && character[property] === '') {
       const datasetForProperty = datasets[property]
@@ -76,29 +42,16 @@ const randomizeRecursive = () => {
       }
     }
   }
-}
+}*/
 
 const saveCharacter = () => {
-  randomizeRecursive()
-  open.value = true
   characterStore.saveCharacter()
+  open.value = true
+
 }
 
 const closeModal = () => {
   characterStore.clearCharacter()
-  character = reactive({
-    species: '',
-    clothes: '',
-    details: '',
-    hair: '',
-    eyes: '',
-    skinTone: '',
-    height: '',
-    build: '',
-    mood: '',
-    colors: '',
-    name: ''
-  })
   selectedCategory.value = ''
   selectedOption.value = ''
   open.value = false
@@ -135,7 +88,7 @@ const closeModal = () => {
                   name="character-species"
                   autocomplete="character-species"
                   class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:max-w-xs sm:text-sm sm:leading-6"
-                  v-model="character.species"
+                  v-model="characterStore.species"
                 >
                   <option value="" disabled>Select an option</option>
                   <option v-for="(item, index) in characterData.species" :key="index">{{ item }}</option>
@@ -166,7 +119,7 @@ const closeModal = () => {
                   name="character-clothes"
                   autocomplete="character-clothes"
                   class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:max-w-xs sm:text-sm sm:leading-6"
-                  v-model="character.clothes"
+                  v-model="characterStore.clothes"
                 >
                   <option value="" disabled>Select an option</option>
                   <option v-for="(item, index) in characterData.clothes" :key="index">{{ item }}</option>
@@ -197,7 +150,7 @@ const closeModal = () => {
                   name="character-details"
                   autocomplete="character-details"
                   class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:max-w-xs sm:text-sm sm:leading-6"
-                  v-model="character.details"
+                  v-model="characterStore.details"
                 >
                   <option value="" disabled>Select an option</option>
                   <option v-for="(item, index) in characterData.details" :key="index">{{ item }}</option>
@@ -228,7 +181,7 @@ const closeModal = () => {
                   name="character-hair"
                   autocomplete="character-hair"
                   class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:max-w-xs sm:text-sm sm:leading-6"
-                  v-model="character.hair"
+                  v-model="characterStore.hair"
                 >
                   <option value="" disabled>Select an option</option>
                   <option v-for="(item, index) in characterData.hair" :key="index">{{ item }}</option>
@@ -259,7 +212,7 @@ const closeModal = () => {
                   name="character-eyes"
                   autocomplete="character-eyes"
                   class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:max-w-xs sm:text-sm sm:leading-6"
-                  v-model="character.eyes"
+                  v-model="characterStore.eyes"
                 >
                   <option value="" disabled>Select an option</option>
                   <option v-for="(item, index) in characterData.eyes" :key="index">{{ item }}</option>
@@ -290,7 +243,7 @@ const closeModal = () => {
                   name="character-skin-tone"
                   autocomplete="character-skin-tone"
                   class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:max-w-xs sm:text-sm sm:leading-6"
-                  v-model="character.skinTone"
+                  v-model="characterStore.skinTone"
                 >
                   <option value="" disabled>Select an option</option>
                   <option v-for="(item, index) in characterData.skinTone" :key="index">{{ item }}</option>
@@ -321,7 +274,7 @@ const closeModal = () => {
                   name="character-height"
                   autocomplete="character-height"
                   class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:max-w-xs sm:text-sm sm:leading-6"
-                  v-model="character.height"
+                  v-model="characterStore.height"
                 >
                   <option value="" disabled>Select an option</option>
                   <option v-for="(item, index) in characterData.height" :key="index">{{ item }}</option>
@@ -352,7 +305,7 @@ const closeModal = () => {
                   name="character-build"
                   autocomplete="character-build"
                   class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:max-w-xs sm:text-sm sm:leading-6"
-                  v-model="character.build"
+                  v-model="characterStore.build"
                 >
                   <option value="" disabled>Select an option</option>
                   <option v-for="(item, index) in characterData.build" :key="index">{{ item }}</option>
@@ -383,7 +336,7 @@ const closeModal = () => {
                   name="character-mood"
                   autocomplete="character-mood"
                   class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:max-w-xs sm:text-sm sm:leading-6"
-                  v-model="character.mood"
+                  v-model="characterStore.mood"
                 >
                   <option value="" disabled>Select an option</option>
                   <option v-for="(item, index) in characterData.mood" :key="index">{{ item }}</option>
@@ -414,7 +367,7 @@ const closeModal = () => {
                   name="character-colors"
                   autocomplete="character-colors"
                   class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:max-w-xs sm:text-sm sm:leading-6"
-                  v-model="character.colors"
+                  v-model="characterStore.colors"
                 >
                   <option value="" disabled>Select an option</option>
                   <option v-for="(item, index) in characterData.colors" :key="index">{{ item }}</option>
@@ -553,7 +506,7 @@ const closeModal = () => {
                               <dd
                                 class="mt-1 text-sm leading-6 text-gray-700 sm:col-span-2 sm:mt-0"
                               >
-                                {{ character.name }}
+                                {{ characterStore.name }}
                               </dd>
                             </div>
                             <div class="px-4 py-6 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
@@ -561,7 +514,7 @@ const closeModal = () => {
                               <dd
                                 class="mt-1 text-sm leading-6 text-gray-700 sm:col-span-2 sm:mt-0"
                               >
-                                {{ character.species }}
+                                {{ characterStore.species }}
                               </dd>
                             </div>
                             <div class="px-4 py-6 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
@@ -569,7 +522,7 @@ const closeModal = () => {
                               <dd
                                 class="mt-1 text-sm leading-6 text-gray-700 sm:col-span-2 sm:mt-0"
                               >
-                                {{ character.clothes }}
+                                {{ characterStore.clothes }}
                               </dd>
                             </div>
                             <div class="px-4 py-6 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
@@ -577,7 +530,7 @@ const closeModal = () => {
                               <dd
                                 class="mt-1 text-sm leading-6 text-gray-700 sm:col-span-2 sm:mt-0"
                               >
-                                {{ character.details }}
+                                {{ characterStore.details }}
                               </dd>
                             </div>
                             <div class="px-4 py-6 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
@@ -585,7 +538,7 @@ const closeModal = () => {
                               <dd
                                 class="mt-1 text-sm leading-6 text-gray-700 sm:col-span-2 sm:mt-0"
                               >
-                                {{ character.hair }}
+                                {{ characterStore.hair }}
                               </dd>
                             </div>
                             <div class="px-4 py-6 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
@@ -593,7 +546,7 @@ const closeModal = () => {
                               <dd
                                 class="mt-1 text-sm leading-6 text-gray-700 sm:col-span-2 sm:mt-0"
                               >
-                                {{ character.eyes }}
+                                {{ characterStore.eyes }}
                               </dd>
                             </div>
                             <div class="px-4 py-6 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
@@ -601,7 +554,7 @@ const closeModal = () => {
                               <dd
                                 class="mt-1 text-sm leading-6 text-gray-700 sm:col-span-2 sm:mt-0"
                               >
-                                {{ character.skinTone }}
+                                {{ characterStore.skinTone }}
                               </dd>
                             </div>
                             <div class="px-4 py-6 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
@@ -609,7 +562,7 @@ const closeModal = () => {
                               <dd
                                 class="mt-1 text-sm leading-6 text-gray-700 sm:col-span-2 sm:mt-0"
                               >
-                                {{ character.height }}
+                                {{ characterStore.height }}
                               </dd>
                             </div>
                             <div class="px-4 py-6 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
@@ -617,7 +570,7 @@ const closeModal = () => {
                               <dd
                                 class="mt-1 text-sm leading-6 text-gray-700 sm:col-span-2 sm:mt-0"
                               >
-                                {{ character.build }}
+                                {{ characterStore.build }}
                               </dd>
                             </div>
                             <div class="px-4 py-6 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
@@ -625,7 +578,7 @@ const closeModal = () => {
                               <dd
                                 class="mt-1 text-sm leading-6 text-gray-700 sm:col-span-2 sm:mt-0"
                               >
-                                {{ character.mood }}
+                                {{ characterStore.mood }}
                               </dd>
                             </div>
                             <div class="px-4 py-6 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
@@ -633,7 +586,7 @@ const closeModal = () => {
                               <dd
                                 class="mt-1 text-sm leading-6 text-gray-700 sm:col-span-2 sm:mt-0"
                               >
-                                {{ character.colors }}
+                                {{ characterStore.colors }}
                               </dd>
                             </div>
                           </dl>

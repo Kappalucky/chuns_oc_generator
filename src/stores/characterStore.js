@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia'
 import { characterData } from '@/constants/characterData'
-import { randomize } from '@/utils/functions'
+import { pickRandom } from '@/utils/functions'
 
 export const useCharacterStore = defineStore('character', {
   state: () => ({
@@ -20,17 +20,17 @@ export const useCharacterStore = defineStore('character', {
     isCompleteCharacter: (state) => Object.values(state).every((value) => value !== '')
   },
   actions: {
-    randomizeRecursive() {
+    randomizeCharacter() {
       for (const property in this.character) {
         // ... check for empty values and access data from store
         if (this.character[property] === '') {
-          const dataSet = characterData[property] // Use characterData object
-          this.character[property] = randomize(dataSet) // Update state directly
+          this.character[property] = pickRandom(characterData[property])
         }
       }
     },
     saveCharacter() {
-      this.randomizeRecursive()
+      console.log('in store')
+      this.randomizeCharacter()
     },
     clearCharacter() {
       this.$reset() // Resets state to initial values
