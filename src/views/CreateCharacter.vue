@@ -397,11 +397,10 @@ const closeModal = () => {
         </button>
       </div>
     </form>
-    <div></div>
   </main>
   <div>
     <TransitionRoot as="template" :show="open">
-      <Dialog as="div" class="relative z-10" @close="open = false">
+      <Dialog as="div" class="relative z-10" @close="closeModal">
         <TransitionChild
           as="template"
           enter="ease-out duration-300"
