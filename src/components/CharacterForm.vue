@@ -1,4 +1,30 @@
-<script setup></script>
+<script setup>
+defineProps({
+  characterData: Object,
+  characterStore: Object
+})
+const emit = defineEmits([
+  'randomCharacterValue',
+  'saveCharacter',
+  'update:characterStore.character.species',
+  'update:characterStore.character.clothes',
+  'update:characterStore.character.details',
+  'update:characterStore.character.hair',
+  'update:characterStore.character.eyes',
+  'update:characterStore.character.skinTone',
+  'update:characterStore.character.height',
+  'update:characterStore.character.build',
+  'update:characterStore.character.mood',
+  'update:characterStore.character.colors'
+])
+
+const updateCharacter = (property, data) => {
+  emit('randomCharacterValue', property, data)
+}
+const saveCharacter = () => {
+  emit('saveCharacter')
+}
+</script>
 <template>
   <form>
     <div class="space-y-12">
@@ -24,7 +50,8 @@
                 name="character-species"
                 autocomplete="character-species"
                 class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:max-w-xs sm:text-sm sm:leading-6"
-                v-model="characterStore.character.species"
+                :value="characterStore.character.species"
+                @input="emit('update:characterStore.character.species', $event.target.value)"
               >
                 <option value="" disabled>Select an option</option>
                 <option v-for="(item, index) in characterData.species" :key="index">
@@ -37,7 +64,7 @@
             <button
               type="button"
               class="rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
-              @click.prevent="randomCharacterValue('species', characterData.species)"
+              @click.prevent="updateCharacter('species', characterData.species)"
             >
               Randomize
             </button>
@@ -57,7 +84,8 @@
                 name="character-clothes"
                 autocomplete="character-clothes"
                 class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:max-w-xs sm:text-sm sm:leading-6"
-                v-model="characterStore.character.clothes"
+                :value="characterStore.character.clothes"
+                @input="emit('update:characterStore.character.clothes', $event.target.value)"
               >
                 <option value="" disabled>Select an option</option>
                 <option v-for="(item, index) in characterData.clothes" :key="index">
@@ -70,7 +98,7 @@
             <button
               type="button"
               class="rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
-              @click.prevent="randomCharacterValue('clothes', characterData.clothes)"
+              @click.prevent="emit('randomCharacterValue', 'clothes', characterData.clothes)"
             >
               Randomize
             </button>
@@ -90,7 +118,8 @@
                 name="character-details"
                 autocomplete="character-details"
                 class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:max-w-xs sm:text-sm sm:leading-6"
-                v-model="characterStore.character.details"
+                :value="characterStore.character.details"
+                @input="emit('update:characterStore.character.details', $event.target.value)"
               >
                 <option value="" disabled>Select an option</option>
                 <option v-for="(item, index) in characterData.details" :key="index">
@@ -103,7 +132,7 @@
             <button
               type="button"
               class="rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
-              @click.prevent="randomCharacterValue('details', characterData.details)"
+              @click.prevent="emit('randomCharacterValue', 'details', characterData.details)"
             >
               Randomize
             </button>
@@ -123,7 +152,8 @@
                 name="character-hair"
                 autocomplete="character-hair"
                 class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:max-w-xs sm:text-sm sm:leading-6"
-                v-model="characterStore.character.hair"
+                :value="characterStore.character.hair"
+                @input="emit('update:characterStore.character.hair', $event.target.value)"
               >
                 <option value="" disabled>Select an option</option>
                 <option v-for="(item, index) in characterData.hair" :key="index">
@@ -136,7 +166,7 @@
             <button
               type="button"
               class="rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
-              @click.prevent="randomCharacterValue('hair', characterData.hair)"
+              @click.prevent="emit('randomCharacterValue', 'hair', characterData.hair)"
             >
               Randomize
             </button>
@@ -156,7 +186,8 @@
                 name="character-eyes"
                 autocomplete="character-eyes"
                 class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:max-w-xs sm:text-sm sm:leading-6"
-                v-model="characterStore.character.eyes"
+                :value="characterStore.character.eyes"
+                @input="emit('update:characterStore.character.eyes', $event.target.value)"
               >
                 <option value="" disabled>Select an option</option>
                 <option v-for="(item, index) in characterData.eyes" :key="index">
@@ -169,7 +200,7 @@
             <button
               type="button"
               class="rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
-              @click.prevent="randomCharacterValue('eyes', characterData.eyes)"
+              @click.prevent="emit('randomCharacterValue', 'eyes', characterData.eyes)"
             >
               Randomize
             </button>
@@ -189,7 +220,8 @@
                 name="character-skin-tone"
                 autocomplete="character-skin-tone"
                 class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:max-w-xs sm:text-sm sm:leading-6"
-                v-model="characterStore.character.skinTone"
+                :value="characterStore.character.skinTone"
+                @input="emit('update:characterStore.character.skinTone', $event.target.value)"
               >
                 <option value="" disabled>Select an option</option>
                 <option v-for="(item, index) in characterData.skinTone" :key="index">
@@ -202,7 +234,7 @@
             <button
               type="button"
               class="rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
-              @click.prevent="randomCharacterValue('skinTone', characterData.skinTone)"
+              @click.prevent="emit('randomCharacterValue', 'skinTone', characterData.skinTone)"
             >
               Randomize
             </button>
@@ -222,7 +254,8 @@
                 name="character-height"
                 autocomplete="character-height"
                 class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:max-w-xs sm:text-sm sm:leading-6"
-                v-model="characterStore.character.height"
+                :value="characterStore.character.height"
+                @input="emit('update:characterStore.character.height', $event.target.value)"
               >
                 <option value="" disabled>Select an option</option>
                 <option v-for="(item, index) in characterData.height" :key="index">
@@ -235,7 +268,7 @@
             <button
               type="button"
               class="rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
-              @click.prevent="randomCharacterValue('height', characterData.height)"
+              @click.prevent="emit('randomCharacterValue', 'height', characterData.height)"
             >
               Randomize
             </button>
@@ -255,7 +288,8 @@
                 name="character-build"
                 autocomplete="character-build"
                 class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:max-w-xs sm:text-sm sm:leading-6"
-                v-model="characterStore.character.build"
+                :value="characterStore.character.build"
+                @input="emit('update:characterStore.character.build', $event.target.value)"
               >
                 <option value="" disabled>Select an option</option>
                 <option v-for="(item, index) in characterData.build" :key="index">
@@ -268,7 +302,7 @@
             <button
               type="button"
               class="rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
-              @click.prevent="randomCharacterValue('build', characterData.build)"
+              @click.prevent="emit('randomCharacterValue', 'build', characterData.build)"
             >
               Randomize
             </button>
@@ -288,7 +322,8 @@
                 name="character-mood"
                 autocomplete="character-mood"
                 class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:max-w-xs sm:text-sm sm:leading-6"
-                v-model="characterStore.character.mood"
+                :value="characterStore.character.mood"
+                @input="emit('update:characterStore.character.mood', $event.target.value)"
               >
                 <option value="" disabled>Select an option</option>
                 <option v-for="(item, index) in characterData.mood" :key="index">
@@ -301,7 +336,7 @@
             <button
               type="button"
               class="rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
-              @click.prevent="randomCharacterValue('mood', characterData.mood)"
+              @click.prevent="emit('randomCharacterValue', 'mood', characterData.mood)"
             >
               Randomize
             </button>
@@ -321,7 +356,8 @@
                 name="character-colors"
                 autocomplete="character-colors"
                 class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:max-w-xs sm:text-sm sm:leading-6"
-                v-model="characterStore.character.colors"
+                :value="characterStore.character.colors"
+                @input="emit('update:characterStore.character.colors', $event.target.value)"
               >
                 <option value="" disabled>Select an option</option>
                 <option v-for="(item, index) in characterData.colors" :key="index">
@@ -334,7 +370,7 @@
             <button
               type="button"
               class="rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
-              @click.prevent="randomCharacterValue('colors', characterData.colors)"
+              @click.prevent="emit('randomCharacterValue', 'colors', characterData.colors)"
             >
               Randomize
             </button>
