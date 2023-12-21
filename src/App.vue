@@ -1,9 +1,9 @@
 <script setup>
-import HomeView from './views/HomeView.vue'
+import CreateCharacter from './views/CreateCharacter.vue'
 </script>
 
 <template>
-  <HomeView />
+  <CreateCharacter />
 </template>
 
 <style scoped>
